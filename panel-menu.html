@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editor de Menú – Administrador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #fff6ed;
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+    h2, h3 {
+      margin-top: 0;
+    }
+    .group-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      margin-bottom: 25px;
+      padding: 15px;
+    }
+    .group-header {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .group-header img {
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .upload-btn {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .upload-btn:hover {
+      background: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 6px 8px;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+    th {
+      background: #ffe6cc;
+    }
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 6px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .btn-sm {
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-add {
+      background: #28a745;
+      color: #fff;
+    }
+    .btn-del {
+      background: #dc3545;
+      color: #fff;
+    }
+    .btn-save {
+      background: #17a2bb;
+      color: #fff;
+      width: 100%;
+      margin-top: 15px;
+      padding: 10px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-save:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Editor de Menú</h2>
+  <div id="menu-editor"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="panel-menu.js"></script>
+
+</body>
+</html>

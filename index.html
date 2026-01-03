@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Birria El Sazón</title>
+  <link href="style.css" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <img alt="Logo" class="logo-grande" src="imagenes/logo.jpg"/>
+      <div>
+        <h1>Carnitas Tio Bigotes</h1>
+        <p>Estilo Michoacan</p>
+        <small class="slogan">¡Para chuparse los bigotes!</small>
+      </div>
+    </div>
+  </header>
+
+  <div class="section" id="login">
+    <h2>Bienvenido</h2>
+    <input id="name" placeholder="Escribe tu nombre" type="text"/>
+    <input id="password" placeholder="Contraseña de cliente" type="password"/>
+    <button class="button-primary" onclick="registerName()">Entrar</button>
+    <button class="button-cancel" onclick="cancelEntry()">Cancelar</button>
+
+    <div class="section" id="ubicacion">
+      <h3>¿Dónde estamos?</h3>
+      <p>Av. Hacienda Azadones 55, Col. Los Héroes, El Marqués, Qro. C.P. 76267</p>
+      <iframe
+        src="https://www.google.com/maps?q=Av.+Hacienda+Azadones+55,+Col.+Los+Héroes,+El+Marqués,+Querétaro+76267&output=embed"
+        width="100%"
+        height="300"
+        style="border:0; border-radius:12px;"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+      <br/><br/>
+      <a href="https://www.google.com/maps/dir/?api=1&destination=Av.+Hacienda+Azadones+55,+Col.+Los+Héroes,+El+Marqués,+Querétaro+76267" 
+         target="_blank" 
+         class="button-primary" 
+         style="text-align:center; display:inline-block; padding:10px 20px;">
+        Abrir en Google Maps
+      </a>
+    </div>
+  </div>
+
+  <div class="section" id="welcome"></div>
+  <div class="section" id="menu" style="display:none;"></div>
+
+  <div class="section" id="order-summary" style="display:none;">
+    <h2>Tu Pedido</h2>
+    <div id="order-list"></div>
+    <p><strong>Total: $<span id="total">0</span></strong></p>
+    <button class="button-primary" onclick="confirmCurrentOrder()">Confirmar Pedido</button>
+    <br/><br/>
+    <select id="method-payment">
+      <option>-- Selecciona --</option>
+      <option>Efectivo</option>
+      <option>Tarjeta</option>
+    </select>
+    <button class="button-primary" onclick="prepareCheckout()">Pedir Cuenta</button>
+    <br/><br/>
+    <button class="button-exit" onclick="handleExit()">Salir</button>
+  </div>
+
+  <div class="section" id="ticket" style="display:none;">
+    <button class="button-exit" onclick="exitSite()">Salir</button>
+  </div>
+
+  <div class="section" id="admin-panel" style="display:none;">
+    <h2>Panel de Administrador</h2>
+    <button class="button-primary" onclick="showTodayTickets()">Mostrar Tickets del Día</button>
+    <button class="button-primary" onclick="showTodaySales()">Mostrar Venta del Día</button>
+    <br/><br/>
+    <label>Fecha Inicio:</label><input id="fechaInicio" type="date"/>
+    <label>Fecha Fin:</label><input id="fechaFin" type="date"/>
+    <button class="button-primary" onclick="showSalesByDateRange()">Buscar Venta por Rango</button>
+    <br/><br/>
+    <h3>Cambiar Contraseña de Cliente</h3>
+    <input id="newClientPassword" placeholder="Nueva Contraseña" type="text"/>
+    <button class="button-primary" onclick="updateClientPassword()">Actualizar Contraseña</button>
+    <button class="button-primary" onclick="window.open('panel-menu.html','_blank')">Editar Menú</button>
+    <button class="button-primary" onclick="showExpensesPanel()">Registrar Gastos</button>
+    <div id="admin-results"></div>
+    <button class="button-exit" onclick="exitSite()">Salir</button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

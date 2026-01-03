@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Gastos y Ganancias</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body{font-family:'Segoe UI',sans-serif;padding:10px;margin:0;background:#f9f9f9}
+    .section{background:#fff;padding:16px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.1);max-width:600px;margin:auto}
+    h2,h3,h4{color:#333}
+    .gasto-linea{display:flex;gap:8px;margin-bottom:10px}
+    .gasto-linea input[type="text"]{flex:2}
+    .gasto-linea input[type="number"]{flex:1}
+    input[type="date"],input[type="number"],input[type="text"]{width:100%;padding:8px;box-sizing:border-box;border:1px solid #ccc;border-radius:5px}
+    .button-primary{background-color:#007bff;color:white;border:none;padding:10px 16px;font-size:1rem;border-radius:5px;cursor:pointer;width:100%;margin-bottom:12px}
+    .button-primary:hover{background-color:#0056b3}
+    .button-exit{background-color:#6c757d;color:white;border:none;padding:10px 16px;font-size:1rem;border-radius:5px;cursor:pointer;width:100%}
+    ul{padding-left:20px;margin-top:0}
+  </style>
+</head>
+<body>
+  <div class="section">
+    <h2>Registrar Gastos</h2>
+    <div id="expense-fields"></div>
+    <button onclick="addExpenseRow()" class="button-primary" style="background-color:#28a745;">Agregar Concepto</button>
+    <button onclick="saveExpenses()" class="button-primary">Guardar Gastos</button>
+
+    <h3>Rango de Fechas para Ventas</h3>
+    <label>Fecha Inicio:</label><input id="fechaInicioGasto" type="date">
+    <label>Fecha Fin:</label><input id="fechaFinGasto" type="date">
+    <button onclick="calculateProfit()" class="button-primary">Calcular Ganancia</button>
+
+    <div id="profit-result" style="margin-top:20px;"></div>
+
+    <br><button class="button-exit" onclick="window.close()">Salir</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://carnitastiobigotes-default-rtdb.firebaseio.com/"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function loadExpenses() {
+      db.ref('gastos').once('value').then(snapshot => {
+        const gastos = snapshot.val() || [];
+        const container = document.getElementById('expense-fields');
+        container.innerHTML = '';
+        gastos.forEach((gasto, i) => {
+          if (gasto.descripcion.trim() !== '') {
+            const row = document.createElement('div');
+            row.className = 'gasto-linea';
+            row.innerHTML = `
+              <input id="desc${i}" value="${gasto.descripcion}" placeholder="Descripción #${i + 1}" type="text">
+              <input id="cost${i}" value="${gasto.costo}" placeholder="Costo #${i + 1}" type="number" min="0" step="0.01">
+            `;
+            container.appendChild(row);
+          }
+        });
+      });
+    }
+
+    function addExpenseRow() {
+      const container = document.getElementById('expense-fields');
+      const index = container.children.length;
+      const row = document.createElement('div');
+      row.className = 'gasto-linea';
+      row.innerHTML = `
+        <input id="desc${index}" placeholder="Descripción #${index + 1}" type="text">
+        <input id="cost${index}" placeholder="Costo #${index + 1}" type="number" min="0" step="0.01">
+      `;
+      container.appendChild(row);
+    }
+
+    function saveExpenses() {
+      const gastos = [];
+      const fields = document.querySelectorAll('.gasto-linea');
+      fields.forEach((row, i) => {
+        const descripcion = row.querySelector('input[type="text"]').value;
+        const costo = parseFloat(row.querySelector('input[type="number"]').value) || 0;
+        gastos.push({ descripcion, costo });
+      });
+      db.ref('gastos').set(gastos).then(() => {
+        alert('Gastos guardados correctamente.');
+      });
+    }
+
+    function calculateProfit() {
+      const fields = document.querySelectorAll('.gasto-linea');
+      let totalExpenses = 0;
+      const gastosDetalle = [];
+      fields.forEach(row => {
+        const desc = row.querySelector('input[type="text"]').value;
+        const val = parseFloat(row.querySelector('input[type="number"]').value) || 0;
+        totalExpenses += val;
+        if (desc) gastosDetalle.push({ desc, val });
+      });
+
+      const inicio = document.getElementById('fechaInicioGasto').value;
+      const fin = document.getElementById('fechaFinGasto').value;
+      if (!inicio || !fin) {
+        alert("Selecciona ambas fechas para calcular ganancias.");
+        return;
+      }
+
+      db.ref('ventas').once('value').then(snapshot => {
+        let totalIngresos = 0;
+        const ingresosDetalle = {};
+
+        snapshot.forEach(ticket => {
+          const data = ticket.val();
+          if (data.fecha >= inicio && data.fecha <= fin) {
+            data.orden.forEach(item => {
+              totalIngresos += item.subtotal;
+              if (!ingresosDetalle[item.producto]) {
+                ingresosDetalle[item.producto] = { cantidad: 0, total: 0 };
+              }
+              ingresosDetalle[item.producto].cantidad += item.cantidad;
+              ingresosDetalle[item.producto].total += item.subtotal;
+            });
+          }
+        });
+
+        let html = '<h4>Gastos:</h4><ul>';
+        gastosDetalle.forEach(g => {
+          html += `<li>${g.desc}: $${g.val.toFixed(2)}</li>`;
+        });
+        html += `</ul><h4>Total Gastos: $<span style="color:red">${totalExpenses.toFixed(2)}</span></h4>`;
+
+        html += '<h4>Ingresos por producto:</h4><ul>';
+        for (let p in ingresosDetalle) {
+          html += `<li>${p} x ${ingresosDetalle[p].cantidad} = $${ingresosDetalle[p].total.toFixed(2)}</li>`;
+        }
+        html += `</ul><h4>Total Ingresos: $<span style="color:green">${totalIngresos.toFixed(2)}</span></h4>`;
+
+        const gananciaNeta = totalIngresos - totalExpenses;
+        const color = gananciaNeta >= 0 ? 'green' : 'red';
+        html += `<h3>Ganancia Neta: <span style="color:${color};font-weight:bold">$${gananciaNeta.toFixed(2)}</span></h3>`;
+
+        document.getElementById('profit-result').innerHTML = html;
+      });
+    }
+
+    window.onload = loadExpenses;
+  </script>
+</body>
+</html>

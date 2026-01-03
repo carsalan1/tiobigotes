@@ -1,0 +1,116 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #fff6ed;
+}
+header {
+  background: linear-gradient(to right, #c0392b, #e67e22);
+  color: white;
+  padding: 10px;
+}
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding-left: 20px;
+}
+.logo-grande {
+  width: 180px;
+  height: auto;
+}
+.slogan {
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #ffe8c2;
+}
+.section {
+  padding: 20px;
+}
+input, select, button {
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  width: 80%;
+  max-width: 300px;
+}
+.button-primary {
+  background-color: #7cbb52;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.button-primary:hover {
+  background-color: #fc9a3f;
+}
+.button-exit, .button-cancel {
+  margin-top: 10px;
+  background-color: #a86c72;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.button-exit:hover, .button-cancel:hover {
+  background-color: #fc9a3f;
+}
+.menu-item {
+  text-align: center;
+  background-color: #fff3e6;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin: 30px auto;
+  padding: 15px;
+  max-width: 500px;
+}
+.menu-item img {
+  width: 100%;
+  max-width: 250px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+.option-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  padding: 6px 10px;
+  background-color: #ffe6cc;
+  border-radius: 10px;
+}
+.product-name {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+  color: #5a2d0c;
+  font-size: 1rem;
+}
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.button-small {
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  font-weight: bold;
+  background-color: #ff6600;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.button-small:hover {
+  background-color: #cc5200;
+}
+.quantity-display, .controls span {
+  width: 35px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+}
