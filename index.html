@@ -22,11 +22,11 @@
 
   <div class="section" id="login">
     <h2>Bienvenido</h2>
-    <input id="name" placeholder="Escribe tu nombre" type="text" autocomplete="off"/>
-    <input id="password" placeholder="Contraseña de administrador" type="password" style="display:none"/>
-    <button class="button-primary" onclick="registerName()">Entrar</button>
-    <button class="button-cancel" onclick="cancelEntry()">Cancelar</button>
+    <input id="claveDia" placeholder="Contraseña del día" type="text" autocomplete="off"/>
+    <button class="button-primary" onclick="validarClaveDia()">Continuar</button>
+    <button class="button-cancel" onclick="cancelEntry()">Salir</button>
 
+    <!-- Ubicación -->
     <div class="section" id="ubicacion">
       <h3>¿Dónde estamos?</h3>
       <p>Av. Hacienda Azadones 55, Col. Los Héroes, El Marqués, Qro. C.P. 76267</p>
@@ -81,6 +81,10 @@
     <label>Fecha Fin:</label><input id="fechaFin" type="date"/>
     <button class="button-primary" onclick="showSalesByDateRange()">Buscar Venta por Rango</button>
     <br/><br/>
+    <h3>Contraseña del Día</h3>
+    <input id="pwdDia" type="text" placeholder="Nueva clave del día"/>
+    <button class="button-primary" onclick="guardarPwdDia()">Guardar</button>
+    <br/><br/>
     <button class="button-primary" onclick="window.open('panel-menu.html','_blank')">Editar Menú</button>
     <button class="button-primary" onclick="showExpensesPanel()">Registrar Gastos</button>
     <div id="admin-results"></div>
@@ -88,17 +92,5 @@
   </div>
 
   <script src="app.js"></script>
-  <script>
-    // Mostrar/ocultar contraseña en tiempo real
-    document.getElementById('name').addEventListener('input', function () {
-      const passInput = document.getElementById('password');
-      if (this.value.trim().toLowerCase() === 'admin') {
-        passInput.style.display = 'block';
-      } else {
-        passInput.style.display = 'none';
-        passInput.value = '';
-      }
-    });
-  </script>
 </body>
 </html>
