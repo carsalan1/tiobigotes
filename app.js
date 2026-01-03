@@ -56,7 +56,7 @@ Promise.all([
     groupedMenu = menuSnap.val();
   } else {
     groupedMenu = defaultMenu;
-    database.ref('menuEditor').set(defaultMenu); // guarda por defecto
+    database.ref('menuEditor').set(defaultMenu);
   }
 
   if (confirmedOrder.length === 0 && currentOrder.length === 0) {
@@ -94,30 +94,27 @@ function showWelcome() {
 }
 
 function registerName() {
-  clientName = document.getElementById('name').value.trim();
-  const passwordInput = document.getElementById('password').value.trim();
+  const rawInput = document.getElementById('name').value.trim();
+  const passInput = document.getElementById('password').value.trim();
 
-  if (clientName.toLowerCase() === "admin") {
-    let password = prompt("Introduce la contraseña de administrador:");
-    if (password === "12345") {
+  /* ---------- MODO ADMIN ---------- */
+  if (rawInput.toLowerCase() === 'admin') {
+    if (passInput === 'carnivoras') {
       document.getElementById('login').style.display = 'none';
       document.getElementById('admin-panel').style.display = 'block';
     } else {
-      alert("Contraseña de administrador incorrecta");
+      alert('Contraseña de administrador incorrecta');
     }
     return;
   }
 
-  if (clientName === "") {
-    alert("Escribe tu nombre");
+  /* ---------- MODO CLIENTE (sin contraseña) ---------- */
+  if (rawInput === '') {
+    alert('Escribe tu nombre');
     return;
   }
 
-  if (passwordInput !== clientPassword) {
-    alert("Contraseña de cliente incorrecta");
-    return;
-  }
-
+  clientName = rawInput;
   if (!ticketNumber) {
     database.ref('contador/ultimoTicket').get().then(snapshot => {
       let ultimo = snapshot.exists() ? snapshot.val() : 0;
@@ -319,90 +316,6 @@ function getLocalDateYMD() {
   const offset = now.getTimezoneOffset();
   const localDate = new Date(now.getTime() - offset * 60000);
   return localDate.toISOString().split('T')[0];
-}
-// --- FUNCIONES ADMIN CORREGIDAS ---
-function showTodayTickets() {
-  const today = getLocalDateYMD();
-  firebase.database().ref('ventas').orderByChild('fecha').equalTo(today).once('value')
-    .then(snapshot => {
-      const resultDiv = document.getElementById('admin-results');
-      resultDiv.innerHTML = "<h3>Tickets del Día</h3>";
-
-      snapshot.forEach(ticket => {
-        const data = ticket.val();
-        const agrupado = {};
-        data.orden.forEach(item => {
-          if (!agrupado[item.producto]) agrupado[item.producto] = { cantidad: 0, subtotal: 0 };
-          agrupado[item.producto].cantidad += item.cantidad;
-          agrupado[item.producto].subtotal += item.subtotal;
-        });
-
-        let detalle = "<ul>";
-        for (const p in agrupado) {
-          detalle += `<li>${p} x ${agrupado[p].cantidad} = $${agrupado[p].subtotal.toFixed(2)}</li>`;
-        }
-        detalle += "</ul>";
-
-        resultDiv.innerHTML += `
-          <div style="margin-bottom:20px;">
-            <strong>Ticket #${data.ticket}</strong><br>
-            Cliente: ${data.cliente}<br>
-            Fecha: ${data.fecha} ${data.hora}<br>
-            Método de Pago: ${data.metodoPago}<br>
-            ${detalle}
-            <strong>Total: $${parseFloat(data.total).toFixed(2)}</strong>
-          </div><hr>`;
-      });
-
-      if (!snapshot.exists()) {
-        resultDiv.innerHTML = "<p>No hay tickets hoy.</p>";
-      }
-    })
-    .catch(error => {
-      console.error("Error al cargar tickets del día:", error);
-      document.getElementById('admin-results').innerHTML = "<p>Error al cargar tickets.</p>";
-    });
-}
-
-// --- FUNCIONES ADMIN CON ACTUALIZACIÓN EN TIEMPO REAL ---
-function showTodayTickets() {
-  const today = getLocalDateYMD();
-  const resultDiv = document.getElementById('admin-results');
-  resultDiv.innerHTML = "<h3>Tickets del Día (actualización en tiempo real)</h3>";
-
-  firebase.database().ref('ventas').orderByChild('fecha').equalTo(today).on('value', snapshot => {
-    resultDiv.innerHTML = "<h3>Tickets del Día</h3>";
-    if (!snapshot.exists()) {
-      resultDiv.innerHTML += "<p>No hay tickets hoy.</p>";
-      return;
-    }
-
-    snapshot.forEach(ticket => {
-      const data = ticket.val();
-      const agrupado = {};
-      data.orden.forEach(item => {
-        if (!agrupado[item.producto]) agrupado[item.producto] = { cantidad: 0, subtotal: 0 };
-        agrupado[item.producto].cantidad += item.cantidad;
-        agrupado[item.producto].subtotal += item.subtotal;
-      });
-
-      let detalle = "<ul>";
-      for (const p in agrupado) {
-        detalle += `<li>${p} x ${agrupado[p].cantidad} = $${agrupado[p].subtotal.toFixed(2)}</li>`;
-      }
-      detalle += "</ul>";
-
-      resultDiv.innerHTML += `
-        <div style="margin-bottom:20px;">
-          <strong>Ticket #${data.ticket}</strong><br>
-          Cliente: ${data.cliente}<br>
-          Fecha: ${data.fecha} ${data.hora}<br>
-          Método de Pago: ${data.metodoPago}<br>
-          ${detalle}
-          <strong>Total: $${parseFloat(data.total).toFixed(2)}</strong>
-        </div><hr>`;
-    });
-  });
 }
 
 // --- FUNCIONES ADMIN CON ACTUALIZACIÓN EN TIEMPO REAL ---
