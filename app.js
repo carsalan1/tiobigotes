@@ -48,9 +48,11 @@ const defaultMenu = [
 // --- CARGA INICIAL: CONTRASEÑA + MENÚ ---
 Promise.all([
   database.ref('configuracion/passwordCliente').once('value'),
-  database.ref('menuEditor').once('value')
-]).then(([passSnap, menuSnap]) => {
+  database.ref('menuEditor').once('value'),
+  database.ref('configuracion/passwordDelDia').once('value')
+]).then(([passSnap, menuSnap, diaSnap]) => {
   if (passSnap.exists()) clientPassword = passSnap.val();
+  if (!diaSnap.exists()) database.ref('configuracion/passwordDelDia').set('1234');
 
   if (menuSnap.exists() && menuSnap.val().length > 0) {
     groupedMenu = menuSnap.val();
@@ -93,13 +95,19 @@ function showWelcome() {
   document.getElementById('welcome').innerHTML = `<h2>Bienvenido, ${clientName}!<br><small>Tu número de ticket es #${ticketNumber}<br>${now.toLocaleDateString()} ${now.toLocaleTimeString()}</small></h2>`;
 }
 
-function registerName() {
-  const rawInput = document.getElementById('name').value.trim();
-  const passInput = document.getElementById('password').value.trim();
+// VALIDAR CONTRASEÑA DEL DÍA
+function validarClaveDia() {
+  const clave = document.getElementById('claveDia').value.trim();
 
-  /* ---------- MODO ADMIN ---------- */
-  if (rawInput.toLowerCase() === 'admin') {
-    if (passInput === 'carnivoras') {
+  if (clave === '') {
+    alert('Escribe la contraseña del día');
+    return;
+  }
+
+  // Si escribe "admin", pedimos la contraseña de administrador
+  if (clave.toLowerCase() === 'admin') {
+    const adminPass = prompt('Introduce la contraseña de administrador:');
+    if (adminPass === 'carnivoras') {
       document.getElementById('login').style.display = 'none';
       document.getElementById('admin-panel').style.display = 'block';
     } else {
@@ -108,32 +116,36 @@ function registerName() {
     return;
   }
 
-  /* ---------- MODO CLIENTE (sin contraseña) ---------- */
-  if (rawInput === '') {
-    alert('Escribe tu nombre');
-    return;
-  }
+  // Validar contra Firebase
+  database.ref('configuracion/passwordDelDia').once('value').then(snapshot => {
+    const claveHoy = snapshot.val();
+    if (clave !== claveHoy) {
+      alert('Solicite la contraseña del día a Tío Bigotes para continuar');
+      return;
+    }
 
-  clientName = rawInput;
-  if (!ticketNumber) {
-    database.ref('contador/ultimoTicket').get().then(snapshot => {
-      let ultimo = snapshot.exists() ? snapshot.val() : 0;
-      ticketNumber = (ultimo + 1).toString().padStart(4, '0');
-      database.ref('contador').set({ ultimoTicket: parseInt(ticketNumber) });
-      saveSession();
+    // Contraseña correcta → flujo cliente
+    clientName = 'Cliente Local'; // puedes pedir nombre después si quieres
+    if (!ticketNumber) {
+      database.ref('contador/ultimoTicket').get().then(snapshot => {
+        let ultimo = snapshot.exists() ? snapshot.val() : 0;
+        ticketNumber = (ultimo + 1).toString().padStart(4, '0');
+        database.ref('contador').set({ ultimoTicket: parseInt(ticketNumber) });
+        saveSession();
+        showWelcome();
+        document.getElementById('login').style.display = 'none';
+        renderMenu();
+        document.getElementById('menu').style.display = 'block';
+        document.getElementById('order-summary').style.display = 'block';
+      });
+    } else {
       showWelcome();
-      document.getElementById('login').style.display = 'none';
       renderMenu();
+      document.getElementById('login').style.display = 'none';
       document.getElementById('menu').style.display = 'block';
       document.getElementById('order-summary').style.display = 'block';
-    });
-  } else {
-    showWelcome();
-    renderMenu();
-    document.getElementById('login').style.display = 'none';
-    document.getElementById('menu').style.display = 'block';
-    document.getElementById('order-summary').style.display = 'block';
-  }
+    }
+  });
 }
 
 function cancelEntry() {
@@ -318,7 +330,7 @@ function getLocalDateYMD() {
   return localDate.toISOString().split('T')[0];
 }
 
-// --- FUNCIONES ADMIN CON ACTUALIZACIÓN EN TIEMPO REAL ---
+// --- FUNCIONES ADMIN ---
 function showTodayTickets() {
   const today = getLocalDateYMD();
   const resultDiv = document.getElementById('admin-results');
@@ -390,6 +402,15 @@ function showTodaySales() {
       resultDiv.innerHTML += `<li>${producto}: ${productos[producto].cantidad} piezas = $${productos[producto].subtotal.toFixed(2)}</li>`;
     }
     resultDiv.innerHTML += `</ul><h3>Total Vendido: $${totalDia.toFixed(2)}</h3>`;
+  });
+}
+
+function guardarPwdDia() {
+  const p = document.getElementById('pwdDia').value.trim();
+  if (!p) return alert('Escribe una clave');
+  database.ref('configuracion/passwordDelDia').set(p).then(() => {
+    alert('Clave del día actualizada');
+    document.getElementById('pwdDia').value = '';
   });
 }
 
