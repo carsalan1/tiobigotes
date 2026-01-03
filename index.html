@@ -21,10 +21,21 @@
   </header>
 
   <div class="section" id="login">
-    <h2>Bienvenido</h2>
-    <input id="claveDia" placeholder="Contraseña del día" type="text" autocomplete="off"/>
-    <button class="button-primary" onclick="validarClaveDia()">Continuar</button>
-    <button class="button-cancel" onclick="cancelEntry()">Salir</button>
+    <!-- PASO 1: Contraseña del día -->
+    <div id="step1">
+      <h2>Bienvenido</h2>
+      <input id="claveDia" placeholder="Contraseña del día" type="text" autocomplete="off"/>
+      <button class="button-primary" onclick="validarClaveDia()">Continuar</button>
+      <button class="button-cancel" onclick="cancelEntry()">Salir</button>
+    </div>
+
+    <!-- PASO 2: Nombre del cliente (oculto al inicio) -->
+    <div id="step2" style="display:none;">
+      <h2>¿Cómo te llamas?</h2>
+      <input id="nombreCliente" placeholder="Escribe tu nombre" type="text" autocomplete="off"/>
+      <button class="button-primary" onclick="ingresarConNombre()">Aceptar</button>
+      <button class="button-cancel" onclick="cancelEntry()">Cancelar</button>
+    </div>
 
     <!-- Ubicación -->
     <div class="section" id="ubicacion">
