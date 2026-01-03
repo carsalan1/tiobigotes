@@ -22,8 +22,8 @@
 
   <div class="section" id="login">
     <h2>Bienvenido</h2>
-    <input id="name" placeholder="Escribe tu nombre" type="text"/>
-    <input id="password" placeholder="Contraseña de cliente" type="password"/>
+    <input id="name" placeholder="Escribe tu nombre" type="text" autocomplete="off"/>
+    <input id="password" placeholder="Contraseña de administrador" type="password" style="display:none"/>
     <button class="button-primary" onclick="registerName()">Entrar</button>
     <button class="button-cancel" onclick="cancelEntry()">Cancelar</button>
 
@@ -91,5 +91,17 @@
   </div>
 
   <script src="app.js"></script>
+  <script>
+    // Mostrar/ocultar contraseña en tiempo real
+    document.getElementById('name').addEventListener('input', function () {
+      const passInput = document.getElementById('password');
+      if (this.value.trim().toLowerCase() === 'admin') {
+        passInput.style.display = 'block';
+      } else {
+        passInput.style.display = 'none';
+        passInput.value = '';
+      }
+    });
+  </script>
 </body>
 </html>
